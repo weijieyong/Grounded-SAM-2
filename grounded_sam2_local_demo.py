@@ -69,6 +69,11 @@ h, w, _ = image_source.shape
 boxes = boxes * torch.Tensor([w, h, w, h])
 input_boxes = box_convert(boxes=boxes, in_fmt="cxcywh", out_fmt="xyxy").numpy()
 
+# Check if any boxes were detected
+if len(input_boxes) == 0:
+    print(f"No objects detected with the current thresholds (BOX_THRESHOLD={BOX_THRESHOLD}, TEXT_THRESHOLD={TEXT_THRESHOLD})")
+    print("Try lowering the thresholds or using a different text prompt.")
+    exit(1)
 
 # FIXME: figure how does this influence the G-DINO model
 torch.autocast(device_type=DEVICE, dtype=torch.bfloat16).__enter__()

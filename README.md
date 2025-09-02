@@ -1,5 +1,45 @@
 # Grounded SAM 2: Ground and Track Anything in Videos
 
+## Quick Setup (Personal Fork)
+
+This is my personal fork, tested on a 5080 GPU (Blackwell, CUDA 12.8). Steps are simplified for easy setup:
+
+1. Download Pretrained Checkpoints (if you haven't already)
+
+    Download the pretrained `SAM 2` and `Grounding DINO` checkpoints:
+    ```bash
+    cd checkpoints
+    bash download_ckpts.sh
+
+    cd gdino_checkpoints
+    bash download_ckpts.sh
+    ```
+
+2. **Create a Python 3.10 virtual environment with [uv](https://github.com/astral-sh/uv):**
+    ```bash
+    uv venv -p 3.10
+    ```
+
+1. **Install PyTorch nightly (CUDA 12.8) and dependencies:**
+    ```bash
+    uv pip install --pre torch==2.9.0.dev20250831 torchvision==0.24.0.dev20250831 --index-url https://download.pytorch.org/whl/nightly/cu128
+    uv pip install opencv-python supervision pycocotools transformers addict yapf timm
+    ```
+
+1. **For 50-series (Blackwell) NVIDIA GPUs:**
+    ```bash
+    export TORCH_CUDA_ARCH_LIST=12.0
+    ```
+
+1. **Install this repo and Grounding DINO in editable mode:**
+    ```bash
+    uv pip install -e .
+    uv pip install --no-build-isolation -e grounding_dino
+    ```
+---
+
+Original readme below:
+
 **[IDEA-Research](https://github.com/idea-research)**
 
 [Tianhe Ren](https://rentainhe.github.io/), [Shuo Shen](https://github.com/ShuoShenDe)
@@ -37,23 +77,33 @@ Grounded SAM 2 does not introduce significant methodological changes compared to
 - **2024.08.07**: Support **Custom Video Inputs**, users need only submit their video file (e.g. `.mp4` file) with specific text prompts to get an impressive demo videos.
 
 ## Contents
-- [Installation](#installation)
-- [Grounded SAM 2 Demos](#grounded-sam-2-demos)
-  - [Grounded SAM 2 Image Demo](#grounded-sam-2-image-demo-with-grounding-dino)
-  - [Grounded SAM 2 Image Demo (with Grounding DINO 1.5 & 1.6)](#grounded-sam-2-image-demo-with-grounding-dino-15--16)
-  - [Grounded SAM 2 Image Demo (with DINO-X)](#grounded-sam-2-image-demo-with-dino-x)
-  - [Grounded SAM 2 with SAHI for High Resolution Image Inference](#sahi-slicing-aided-hyper-inference-with-grounding-dino-15-and-sam-2)
-  - [Automatically Saving Grounding and Segmentation Results](#automatically-saving-grounding-results-image-demo)
-  - [Grounded SAM 2 Video Object Tracking Demo](#grounded-sam-2-video-object-tracking-demo)
-  - [Grounded SAM 2 Video Object Tracking Demo (with Grounding DINO 1.5 & 1.6)](#grounded-sam-2-video-object-tracking-demo-with-grounding-dino-15--16)
-  - [Grounded SAM 2 Video Object Tracking with Custom Video Input (using Grounding DINO)](#grounded-sam-2-video-object-tracking-demo-with-custom-video-input-with-grounding-dino)
-  - [Grounded SAM 2 Video Object Tracking with Custom Video Input (using Grounding DINO 1.5 & 1.6)](#grounded-sam-2-video-object-tracking-demo-with-custom-video-input-with-grounding-dino-15--16)
-  - [Grounded SAM 2 Video Object Tracking Demo (with DINO-X)](#grounded-sam-2-video-object-tracking-demo-with-custom-video-input-with-dino-x)
-  - [Grounded SAM 2 Video Object Tracking with Continues ID (using Grounding DINO)](#grounded-sam-2-video-object-tracking-with-continuous-id-with-grounding-dino)
-- [Grounded SAM 2 Florence-2 Demos](#grounded-sam-2-florence-2-demos)
-  - [Grounded SAM 2 Florence-2 Image Demo](#grounded-sam-2-florence-2-image-demo)
-  - [Grounded SAM 2 Florence-2 Image Auto-Labeling Demo](#grounded-sam-2-florence-2-image-auto-labeling-demo)
-- [Citation](#citation)
+- [Grounded SAM 2: Ground and Track Anything in Videos](#grounded-sam-2-ground-and-track-anything-in-videos)
+  - [Quick Setup (Personal Fork)](#quick-setup-personal-fork)
+  - [Highlights](#highlights)
+  - [Latest updates](#latest-updates)
+  - [Contents](#contents)
+  - [Installation](#installation)
+    - [Installation without docker](#installation-without-docker)
+    - [Installation with docker](#installation-with-docker)
+  - [Grounded SAM 2 Demos](#grounded-sam-2-demos)
+    - [Grounded SAM 2 Image Demo (with Grounding DINO)](#grounded-sam-2-image-demo-with-grounding-dino)
+    - [Grounded SAM 2 Image Demo (with Grounding DINO 1.5 \& 1.6)](#grounded-sam-2-image-demo-with-grounding-dino-15--16)
+    - [SAHI (Slicing Aided Hyper Inference) with Grounding DINO 1.5 and SAM 2](#sahi-slicing-aided-hyper-inference-with-grounding-dino-15-and-sam-2)
+    - [Grounded SAM 2 Image Demo (with DINO-X)](#grounded-sam-2-image-demo-with-dino-x)
+    - [Automatically Saving Grounding Results (Image Demo)](#automatically-saving-grounding-results-image-demo)
+    - [Grounded SAM 2 Video Object Tracking Demo](#grounded-sam-2-video-object-tracking-demo)
+      - [Support Various Prompt Type for Tracking](#support-various-prompt-type-for-tracking)
+    - [Grounded SAM 2 Video Object Tracking Demo (with Grounding DINO 1.5 \& 1.6)](#grounded-sam-2-video-object-tracking-demo-with-grounding-dino-15--16)
+    - [Grounded SAM 2 Video Object Tracking Demo with Custom Video Input (with Grounding DINO)](#grounded-sam-2-video-object-tracking-demo-with-custom-video-input-with-grounding-dino)
+    - [Grounded SAM 2 Video Object Tracking Demo with Custom Video Input (with Grounding DINO 1.5 \& 1.6)](#grounded-sam-2-video-object-tracking-demo-with-custom-video-input-with-grounding-dino-15--16)
+    - [Grounded SAM 2 Video Object Tracking Demo with Custom Video Input (with DINO-X)](#grounded-sam-2-video-object-tracking-demo-with-custom-video-input-with-dino-x)
+    - [Grounded-SAM-2 Video Object Tracking with Continuous ID (with Grounding DINO)](#grounded-sam-2-video-object-tracking-with-continuous-id-with-grounding-dino)
+    - [Grounded-SAM-2 Video Object Tracking with Continuous ID plus Reverse Tracking(with Grounding DINO)](#grounded-sam-2-video-object-tracking-with-continuous-id-plus-reverse-trackingwith-grounding-dino)
+    - [Grounded-SAM-2 Real-Time Object Tracking with Continuous ID (Live Video / Camera Stream)](#grounded-sam-2-real-time-object-tracking-with-continuous-id-live-video--camera-stream)
+  - [Grounded SAM 2 Florence-2 Demos](#grounded-sam-2-florence-2-demos)
+    - [Grounded SAM 2 Florence-2 Image Demo](#grounded-sam-2-florence-2-image-demo)
+    - [Grounded SAM 2 Florence-2 Image Auto-Labeling Demo](#grounded-sam-2-florence-2-image-auto-labeling-demo)
+    - [Citation](#citation)
 
 
 
